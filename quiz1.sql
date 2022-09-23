@@ -1,14 +1,14 @@
 with product_id_to_accessory_id as(
   select
-  	products.product_id,
+    products.product_id,
     products.product_name,
-  	product_accessories.accessory_id
+    product_accessories.accessory_id
   from
-  	products
+    products
   inner join
-  	product_accessories
+    product_accessories
   on
-  	products.product_id=product_accessories.product_id
+    products.product_id=product_accessories.product_id
 )
 , product_type_id_to_accessory_id as(
   select
