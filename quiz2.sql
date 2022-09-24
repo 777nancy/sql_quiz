@@ -1,37 +1,29 @@
 --user_id=52
-with input_user_id(user_id) as(
-  values(52)
-)
-, target_user as(
+with recursive recursive_departments(
+  department_id, 
+  department_name,
+  parent_department_id
+) as (
   select
-    user_id,
-    department_id
+    department_id, 
+    department_name,
+    parent_department_id
   from
-    users
+    departments
   where
-    user_id =(select user_id from input_user_id)
-)
-, parent_department as(
+    department_id=(select department_id from users where user_id=52)
+  union
   select
-    parent_department_id as department_id
+    departments.department_id, 
+    departments.department_name,
+    departments.parent_department_id
   from
     departments
   inner join
-    target_user
+    recursive_departments
   on
-    departments.department_id=target_user.department_id
-)
-, approval_departments as (
-  select
-    department_id
-  from
-    target_user
-  union
-  select
-    department_id
-  from
-    parent_department
-)
+    departments.department_id=recursive_departments.parent_department_id
+) 
 , approval_users as (
   select
     user_id,
@@ -43,22 +35,22 @@ with input_user_id(user_id) as(
   where
     position_name in ('課長','部長')
     and
-    user_id!=(select user_id from input_user_id)
+    user_id!=52
 )
 select
- row_number() over(order by approval_departments.department_id desc) as approval_order,
+ row_number() over(order by recursive_departments.department_id desc) as approval_order,
  departments.department_name,
  approval_users.user_name,
  approval_users.position_name
 from
-  approval_departments
+  recursive_departments
 inner join
   approval_users
 on
-  approval_departments.department_id=approval_users.department_id
+  recursive_departments.department_id=approval_users.department_id
 inner join
   departments
 on
-  approval_departments.department_id=departments.department_id
+  recursive_departments.department_id=departments.department_id
 order by 
   approval_order
