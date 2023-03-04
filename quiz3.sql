@@ -1,12 +1,14 @@
-select
+SELECT
   basket_number
-from
+FROM
   baskets
-group by
+GROUP BY
   basket_number
-having
-  count(1)=3
-  and
-  sum(
-    case when fruit in ('りんご', 'バナナ', 'ぶどう') then 1 else 0 end
-  )=3
+HAVING
+  COUNT(1) = 3
+  AND SUM(
+    CASE
+      WHEN fruit IN ('りんご', 'バナナ', 'ぶどう') THEN 1
+      ELSE 0
+    END
+  ) = 3

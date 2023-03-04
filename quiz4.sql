@@ -1,81 +1,89 @@
-with event_speakers_details as(
-  select
-    events.event_no,
-    events.event_name,
-    events.held_on,
-    speakers.order_of_speech,
-    speakers.speaker_name,
-    speakers.speech_title
-  from
-    events
-  inner join
-    speakers
-  on
-    events.event_no=speakers.event_no
-),
-event_attendees_details as(
-  select
-    events.event_no,
-    events.event_name,
-    events.held_on,
-    attendees.order_of_application,
-    attendees.account_name
-  from
-    events
-  inner join
-    attendees
-  on
-    events.event_no=attendees.event_no
-)
-, union_detail as(
-  select
-    event_no,
-    event_name,
-    held_on,
-    order_of_speech,
-    speaker_name,
-    speech_title,
-    null as order_of_application,
-    null as account_name
-  from
-    event_speakers_details
-  union
-  select
-    event_no,
-    event_name,
-    held_on,
-    null as order_of_speech,
-    null as speaker_name,
-    null as speech_title,
-    order_of_application,
-    account_name
-  from
-    event_attendees_details
-)
-select
+WITH
+  event_speakers_details AS (
+    SELECT
+      events.event_no,
+      events.event_name,
+      events.held_on,
+      speakers.order_of_speech,
+      speakers.speaker_name,
+      speakers.speech_title
+    FROM
+      events
+      INNER JOIN speakers ON events.event_no = speakers.event_no
+  ),
+  event_attendees_details AS (
+    SELECT
+      events.event_no,
+      events.event_name,
+      events.held_on,
+      attendees.order_of_application,
+      attendees.account_name
+    FROM
+      events
+      INNER JOIN attendees ON events.event_no = attendees.event_no
+  ),
+  union_detail AS (
+    SELECT
+      event_no,
+      event_name,
+      held_on,
+      order_of_speech,
+      speaker_name,
+      speech_title,
+      NULL AS order_of_application,
+      NULL AS account_name
+    FROM
+      event_speakers_details
+    UNION
+    SELECT
+      event_no,
+      event_name,
+      held_on,
+      NULL AS order_of_speech,
+      NULL AS speaker_name,
+      NULL AS speech_title,
+      order_of_application,
+      account_name
+    FROM
+      event_attendees_details
+  )
+SELECT
   events.event_no,
   events.event_name,
   events.held_on,
-  case when union_detail.order_of_speech is null then '' else cast(union_detail.order_of_speech as varchar(50)) end as order_of_speech,
-  case when union_detail.speaker_name is null then '' else union_detail.speaker_name end as speaker_name,
-  case when union_detail.speech_title is null then '' else union_detail.speech_title end as speech_title,
-  case when union_detail.order_of_application is null then '' else cast(union_detail.order_of_application as varchar(50)) end as order_of_application,
-  case when union_detail.account_name is null then '' else union_detail.account_name end as account_name
-from
+  CASE
+    WHEN union_detail.order_of_speech IS NULL THEN ''
+    ELSE CAST(union_detail.order_of_speech AS VARCHAR(50))
+  END AS order_of_speech,
+  CASE
+    WHEN union_detail.speaker_name IS NULL THEN ''
+    ELSE union_detail.speaker_name
+  END AS speaker_name,
+  CASE
+    WHEN union_detail.speech_title IS NULL THEN ''
+    ELSE union_detail.speech_title
+  END AS speech_title,
+  CASE
+    WHEN union_detail.order_of_application IS NULL THEN ''
+    ELSE CAST(union_detail.order_of_application AS VARCHAR(50))
+  END AS order_of_application,
+  CASE
+    WHEN union_detail.account_name IS NULL THEN ''
+    ELSE union_detail.account_name
+  END AS account_name
+FROM
   events
-left join
-  union_detail
-on
-  events.event_no=union_detail.event_no
-order by
+  LEFT JOIN union_detail ON events.event_no = union_detail.event_no
+ORDER BY
   event_no,
-  case
-    when order_of_speech is null then 1
-    else 0
-  end,
+  CASE
+    WHEN order_of_speech IS NULL THEN 1
+    ELSE 0
+  END,
   order_of_speech,
-  case
-    when order_of_application is null then 1
-    else 0
-  end,
-  order_of_application;
+  CASE
+    WHEN order_of_application IS NULL THEN 1
+    ELSE 0
+  END,
+  order_of_application
+;
